@@ -272,9 +272,8 @@ cdef bcf_array_to_object(void *data, int type, ssize_t n, ssize_t count, int sca
     if type == BCF_BT_CHAR:
         datac = <char *>data
 
-        if not n:
-            value = ()
-        else:
+        value = ()
+        if n:
             # Check if at least one null terminator is present
             if datac[n-1] == bcf_str_vector_end:
                 # If so, create a string up to the first null terminator
@@ -282,7 +281,9 @@ cdef bcf_array_to_object(void *data, int type, ssize_t n, ssize_t count, int sca
             else:
                 # Otherwise, copy the entire block
                 b = datac[:n]
-            value = tuple(v.decode('ascii') if v and v != bcf_str_missing else None for v in b.split(b','))
+            s = b.decode('ascii') if b and b[0] != bcf_str_missing else None
+            if s:
+                value = tuple(s.split(','))
     else:
         value = []
         if type == BCF_BT_INT8:
