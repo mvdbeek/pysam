@@ -139,7 +139,7 @@ bam_hdr_t *cram_header_to_bam(SAM_hdr *h) {
     header->n_targets = h->nref;
     header->target_name = (char **)calloc(header->n_targets,
                                           sizeof(char *));
-    header->target_len = (uint32_t *)calloc(header->n_targets, 4);
+    header->target_len = (uint64_t *)calloc(header->n_targets, 4);
 
     for (i = 0; i < h->nref; i++) {
         header->target_name[i] = strdup(h->ref[i].name);

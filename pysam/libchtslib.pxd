@@ -857,7 +857,7 @@ cdef extern from "htslib/sam.h" nogil:
     ctypedef struct bam_hdr_t:
          int32_t n_targets, ignore_sam_err
          uint32_t l_text
-         uint32_t *target_len
+         uint64_t *target_len
          uint8_t *cigar_tab
          char **target_name
          char *text

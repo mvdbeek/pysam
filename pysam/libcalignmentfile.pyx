@@ -248,7 +248,7 @@ cdef class AlignmentHeader(object):
             if self.ptr.target_name == NULL:
                 raise MemoryError("could not allocate {} bytes".format(n, sizeof(char *)))
 
-            self.ptr.target_len = <uint32_t*>calloc(n, sizeof(uint32_t))
+            self.ptr.target_len = <uint64_t*>calloc(n, sizeof(uint64_t))
             if self.ptr.target_len == NULL:
                 raise MemoryError("could not allocate {} bytes".format(n, sizeof(uint32_t)))
 
