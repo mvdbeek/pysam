@@ -2,6 +2,26 @@
 Release notes
 =============
 
+Release 0.15.1
+==============
+
+Bugfix release.
+
+* [#716] raise ValueError if tid is out of range when writing
+* [#697] release version using cython 0.28.5 for python 3.7
+  compatibility
+
+Release 0.15.0
+==============
+
+This release wraps htslib/samtools/bcftools version 1.9.0.
+
+* [#673] permit dash in chromosome name of region string
+* [#656] Support `text` when opening a SAM file for writing
+* [#658] return None in get_forward_sequence if sequence not in record
+* [#683] allow lower case bases in MD tags
+* Ensure that = and X CIGAR ops are treated the same as M
+
 Release 0.14.1
 ==============
 

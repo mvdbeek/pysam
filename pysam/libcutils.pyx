@@ -48,7 +48,10 @@ cpdef array_to_qualitystring(c_array.array qualities, int offset=33):
 
     for x from 0 <= x < len(qualities):
         result[x] = qualities[x] + offset
-    return force_str(result.tostring())
+    if IS_PYTHON3:
+        return force_str(result.tobytes())
+    else:
+        return result.tostring()
 
 
 cpdef qualities_to_qualitystring(qualities, int offset=33):
@@ -164,13 +167,19 @@ cdef force_str(object s, encoding="ascii"):
         return s
 
 
-cpdef parse_region(reference=None,
+cpdef parse_region(contig=None,
                    start=None,
-                   end=None,
-                   region=None):
+                   stop=None,
+                   region=None,
+                   reference=None,
+                   end=None):
     """parse alternative ways to specify a genomic region. A region can
     either be specified by :term:`reference`, `start` and
     `end`. `start` and `end` denote 0-based, half-open intervals.
+    
+    :term:`reference` and `end` are also accepted for backward
+    compatiblity as synonyms for :term:`contig` and `stop`,
+    respectively.
 
     Alternatively, a samtools :term:`region` string can be supplied.
 
@@ -195,6 +204,11 @@ cpdef parse_region(reference=None,
     cdef long long rstart
     cdef long long rend
 
+    if contig is not None:
+        reference = contig
+    if stop is not None:
+        end = stop
+
     rstart = 0
     rend = MAX_POS
     if start != None:
@@ -211,12 +225,14 @@ cpdef parse_region(reference=None,
 
     if region:
         region = force_str(region)
-        parts = re.split("[:-]", region)
-        reference = parts[0]
-        if len(parts) >= 2:
-            rstart = int(parts[1]) - 1
-        if len(parts) >= 3:
-            rend = int(parts[2])
+        if ":" in region:
+            contig, coord = region.split(":")
+            parts = coord.split("-")
+            rstart = int(parts[0]) - 1
+            if len(parts) >= 1:
+                rend = int(parts[1])
+        else:
+            contig = region
 
     if not reference:
         return None, 0, 0

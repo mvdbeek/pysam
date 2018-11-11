@@ -1,5 +1,5 @@
-#ifndef BCFTOOLS_PYSAM_H
-#define BCFTOOLS_PYSAM_H
+#ifndef PYSAM_H
+#define PYSAM_H
 
 #include "stdio.h"
 
@@ -37,6 +37,8 @@ void bcftools_unset_stderr(void);
   Unsetting the stderr will close the previous stderr.
  */
 void bcftools_unset_stdout(void);
+
+int bcftools_puts(const char *s);
 
 int bcftools_dispatch(int argc, char *argv[]);
 

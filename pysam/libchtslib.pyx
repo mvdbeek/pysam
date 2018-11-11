@@ -327,6 +327,7 @@ cdef class HTSFile(object):
     """
     Base class for HTS file types
     """
+
     def __cinit__(self, *args, **kwargs):
         self.htsfile = NULL
         self.threads = 1
@@ -590,12 +591,13 @@ cdef class HTSFile(object):
                     raise RuntimeError('An error occured while applying the requested format options')
                 hts_opt_free(opts)
 
-    def parse_region(self, contig=None, start=None, stop=None, region=None,tid=None,
+    def parse_region(self, contig=None, start=None, stop=None,
+                     region=None, tid=None,
                      reference=None, end=None):
         """parse alternative ways to specify a genomic region. A region can
         either be specified by :term:`contig`, `start` and
         `stop`. `start` and `stop` denote 0-based, half-open
-        intervals.  :term:`reference` and `end` are also accepted for
+        intervals. :term:`reference` and `end` are also accepted for
         backward compatiblity as synonyms for :term:`contig` and
         `stop`, respectively.
 
@@ -661,12 +663,14 @@ cdef class HTSFile(object):
 
         if region:
             region = force_str(region)
-            parts = re.split('[:-]', region)
-            contig = parts[0]
-            if len(parts) >= 2:
-                rstart = int(parts[1]) - 1
-            if len(parts) >= 3:
-                rstop = int(parts[2])
+            if ":" in region:
+                contig, coord = region.split(":")
+                parts = coord.split("-")
+                rstart = int(parts[0]) - 1
+                if len(parts) >= 1:
+                    rstop = int(parts[1])
+            else:
+                contig = region
 
         if tid is not None:
             if not self.is_valid_tid(tid):

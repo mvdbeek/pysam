@@ -876,9 +876,9 @@ cdef class AlignmentFile(HTSFile):
         if mode[0] == 'w':
             # open file for writing
 
-            if not (template or header or reference_names):
+            if not (template or header or text or (reference_names and reference_lengths)):
                 raise ValueError(
-                    "either supply options `template`, `header` or  both `reference_names` "
+                    "either supply options `template`, `header`, `text` or  both `reference_names` "
                     "and `reference_lengths` for writing")
             
             if template:
@@ -915,8 +915,8 @@ cdef class AlignmentFile(HTSFile):
             # is given, the CRAM reference arrays will be built from
             # the @SQ header in the header
             if "c" in mode and reference_filename:
-                # note that fn_aux takes ownership, so create a copy
-                self.htsfile.fn_aux = strdup(self.reference_filename)
+                if (hts_set_fai_filename(self.htsfile, self.reference_filename) != 0):
+                    raise ValueError("failure when setting reference filename")
 
             # write header to htsfile
             if "b" in mode or "c" in mode or "h" in mode:
@@ -1019,10 +1019,10 @@ cdef class AlignmentFile(HTSFile):
               end=None):
         """fetch reads aligned in a :term:`region`.
 
-        See :meth:`AlignmentFile.parse_region` for more information
-        on genomic regions.  :term:`reference` and `end` are also accepted for
-        backward compatiblity as synonyms for :term:`contig` and `stop`,
-        respectively.
+        See :meth:`~pysam.HTSFile.parse_region` for more information
+        on how genomic regions can be specified. :term:`reference` and
+        `end` are also accepted for backward compatiblity as synonyms
+        for :term:`contig` and `stop`, respectively.
 
         Without a `contig` or `region` all mapped reads in the file
         will be fetched. The reads will be returned ordered by reference
@@ -1030,17 +1030,11 @@ cdef class AlignmentFile(HTSFile):
         file. This mode of iteration still requires an index. If there is
         no index, use `until_eof=True`.
 
-        If only `reference` is set, all reads aligned to `reference`
+        If only `contig` is set, all reads aligned to `contig`
         will be fetched.
 
         A :term:`SAM` file does not allow random access. If `region`
         or `contig` are given, an exception is raised.
-
-        :class:`~pysam.FastaFile`
-        :class:`~pysam.IteratorRow`
-        :class:`~pysam.IteratorRow`
-        :class:`~IteratorRow`
-        :class:`IteratorRow`
 
         Parameters
         ----------
@@ -1719,8 +1713,13 @@ cdef class AlignmentFile(HTSFile):
         if not self.is_open:
             return 0
 
+        if self.header.ptr.n_targets <= read._delegate.core.tid:
+            raise ValueError(
+                "AlignedSegment refers to reference number {} that "
+                "is larger than the number of references ({}) in the header".format(
+                    read._delegate.core.tid, self.header.ptr.n_targets))
+        
         cdef int ret
-
         with nogil:
             ret = sam_write1(self.htsfile,
                              self.header.ptr,
