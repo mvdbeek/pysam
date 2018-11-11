@@ -87,7 +87,7 @@ bam_hdr_t *bam_hdr_dup(const bam_hdr_t *h0)
     // TODO Check for memory allocation failures
     h->text = (char*)calloc(h->l_text + 1, 1);
     memcpy(h->text, h0->text, h->l_text);
-    h->target_len = (uint32_t*)calloc(h->n_targets, sizeof(uint32_t));
+    h->target_len = (uint64_t*)calloc(h->n_targets, sizeof(uint64_t));
     h->target_name = (char**)calloc(h->n_targets, sizeof(char*));
     int i;
     for (i = 0; i < h->n_targets; ++i) {
@@ -106,12 +106,12 @@ static bam_hdr_t *hdr_from_dict(sdict_t *d)
     h->sdict = d;
     h->n_targets = kh_size(d);
     // TODO Check for memory allocation failures
-    h->target_len = (uint32_t*)malloc(sizeof(uint32_t) * h->n_targets);
+    h->target_len = (uint64_t*)malloc(sizeof(uint64_t) * h->n_targets);
     h->target_name = (char**)malloc(sizeof(char*) * h->n_targets);
     for (k = kh_begin(d); k != kh_end(d); ++k) {
         if (!kh_exist(d, k)) continue;
         h->target_name[kh_val(d, k)>>32] = (char*)kh_key(d, k);
-        h->target_len[kh_val(d, k)>>32]  = kh_val(d, k) & 0xffffffffUL;
+        h->target_len[kh_val(d, k)>>64]  = kh_val(d, k) & 0xffffffffffffffffUL;
         kh_val(d, k) >>= 32;
     }
     return h;
@@ -164,7 +164,7 @@ bam_hdr_t *bam_hdr_read(BGZF *fp)
     if (h->n_targets > 0) {
         h->target_name = (char**)calloc(h->n_targets, sizeof(char*));
         if (!h->target_name) goto nomem;
-        h->target_len = (uint32_t*)calloc(h->n_targets, sizeof(uint32_t));
+        h->target_len = (uint64_t*)calloc(h->n_targets, sizeof(uint64_t));
         if (!h->target_len) goto nomem;
     }
     else {

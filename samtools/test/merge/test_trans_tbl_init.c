@@ -76,7 +76,7 @@ bam_hdr_t * setup_test(const char *bam0_header_text,
     bam0->l_text = strlen(bam0_header_text);
     bam0->n_targets = 1;
     bam0->target_name = (char**)calloc(bam0_n_refseqs, sizeof(char*));
-    bam0->target_len = (uint32_t*)calloc(bam0_n_refseqs, sizeof(uint32_t));
+    bam0->target_len = (uint64_t*)calloc(bam0_n_refseqs, sizeof(uint64_t));
     for (i = 0; i < bam0_n_refseqs; i++) {
         bam0->target_name[i] = strdup(bam0_refseqs[i].name);
         if (!bam0->target_name[i]) goto fail;
@@ -92,7 +92,7 @@ bam_hdr_t * setup_test(const char *bam0_header_text,
     bam1->l_text = strlen(bam1_header_text);
     bam1->n_targets = bam1_n_refseqs;
     bam1->target_name = (char**)calloc(bam1_n_refseqs, sizeof(char*));
-    bam1->target_len = (uint32_t*)calloc(bam1_n_refseqs, sizeof(uint32_t));
+    bam1->target_len = (uint64_t*)calloc(bam1_n_refseqs, sizeof(uint64_t));
     for (i = 0; i < bam1_n_refseqs; i++) {
         bam1->target_name[i] = strdup(bam1_refseqs[i].name);
         if (!bam1->target_name[i]) goto fail;
