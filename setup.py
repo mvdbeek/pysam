@@ -244,7 +244,7 @@ if HTSLIB_LIBRARY_DIR:
     chtslib_sources = []
     htslib_library_dirs = [HTSLIB_LIBRARY_DIR]
     htslib_include_dirs = [HTSLIB_INCLUDE_DIR]
-    external_htslib_libraries = ['z', 'hts']
+    external_htslib_libraries = ['z', 'hts', 'ssl', 'crypt']
 elif HTSLIB_MODE == 'separate':
     # add to each pysam component a separately compiled
     # htslib
